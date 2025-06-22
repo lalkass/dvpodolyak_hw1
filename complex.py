@@ -1,3 +1,4 @@
+# ruff: noqa: C901
 from functools import lru_cache
 from urllib.parse import urlencode
 
@@ -67,7 +68,9 @@ def _get_manufacturer_id(manufacturer_slug: str) -> int:
     return manufacturer_id
 
 
-def craft_nb_query(request_params: dict[str, str]) -> list[tuple[str, str | int]]:# noqa
+def craft_nb_query(
+    request_params: dict[str, str],
+) -> list[tuple[str, str | int]]:
     """Преобразование набора параметров в request params.
 
     Args:
