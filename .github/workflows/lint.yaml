@@ -18,7 +18,7 @@ jobs:
       - name: dependencies
         run: make init-dev
       - name: lint
-        run: make lint
+        run: make all lint
       - name: mypy
         run: make mypy
       - name: pytest
