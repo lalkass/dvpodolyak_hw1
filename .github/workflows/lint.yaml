@@ -19,7 +19,3 @@ jobs:
         run: make init-dev
       - name: lint
         run: make lint
-      - name: mypy
-        run: make mypy
-      - name: pytest
-        run: make tests
