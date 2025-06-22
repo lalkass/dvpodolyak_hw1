@@ -1,4 +1,3 @@
-# ruff: noqa: C901
 from functools import lru_cache
 from urllib.parse import urlencode
 
@@ -68,6 +67,26 @@ def _get_manufacturer_id(manufacturer_slug: str) -> int:
     return manufacturer_id
 
 
+def _dump_name(item):
+    return ("name__ie", item.lower())
+
+
+def _dump_site(item):
+    return ("site_id", _get_site_id(item))
+
+
+def _dump_role(item):
+    return ("role_id", _get_device_role_id(item))
+
+
+def _dump_manufacturer(item):
+    return ("manufacturer_id", _get_manufacturer_id(item))
+
+
+def _dump_status(item):
+    return ("status", item)
+
+
 def craft_nb_query(
     request_params: dict[str, str],
 ) -> list[tuple[str, str | int]]:
@@ -106,24 +125,35 @@ def craft_nb_query(
         raise ValueError("отсутствуют параметры запроса")
 
     q = []
+    checks = {
+        "name": _dump_name,
+        "site": _dump_site,
+        "role": _dump_role,
+        "manufacturer": _dump_manufacturer,
+        "status": _dump_status,
+    }
     for item_type, items in request_params.items():
-        if item_type == "name":
-            for item in items:
-                q.append(("name__ie", item.lower()))
-        elif item_type == "site":
-            for item in items:
-                q.append(("site_id", _get_site_id(item)))
-        elif item_type == "role":
-            for item in items:
-                q.append(("role_id", _get_device_role_id(item)))
-        elif item_type == "manufacturer":
-            for item in items:
-                q.append(("manufacturer_id", _get_manufacturer_id(item)))
-        elif item_type == "status":
-            for item in items:
-                q.append(("status", item))
-        else:
-            raise ValueError("неизвестный тип параметра")
+        for item in items:
+            func = checks[item_type]
+            q.append(func(item))
+
+        # if item_type == "name":
+        #    for item in items:
+        #        q.append(("name__ie", item.lower()))
+        # elif item_type == "site":
+        #    for item in items:
+        #        q.append(("site_id", _get_site_id(item)))
+        # elif item_type == "role":
+        #    for item in items:
+        #        q.append(("role_id", _get_device_role_id(item)))
+        # elif item_type == "manufacturer":
+        #    for item in items:
+        #        q.append(("manufacturer_id", _get_manufacturer_id(item)))
+        # elif item_type == "status":
+        #    for item in items:
+        #        q.append(("status", item))
+        # else:
+        #    raise ValueError("неизвестный тип параметра")
 
     q.append(("brief", "true"))
     q.append(("limit", 500))
