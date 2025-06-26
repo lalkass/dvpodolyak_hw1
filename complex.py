@@ -67,29 +67,29 @@ def _get_manufacturer_id(manufacturer_slug: str) -> int:
     return manufacturer_id
 
 
-def _dump_name(item):
+def _dump_name(item: str) -> tuple[str, str]:
     return ("name__ie", item.lower())
 
 
-def _dump_site(item):
+def _dump_site(item: str) -> tuple[str, int]:
     return ("site_id", _get_site_id(item))
 
 
-def _dump_role(item):
+def _dump_role(item: str) -> tuple[str, int]:
     return ("role_id", _get_device_role_id(item))
 
 
-def _dump_manufacturer(item):
+def _dump_manufacturer(item: str) -> tuple[str, int]:
     return ("manufacturer_id", _get_manufacturer_id(item))
 
 
-def _dump_status(item):
+def _dump_status(item: str) -> tuple[str, str]:
     return ("status", item)
 
 
 def craft_nb_query(
-    request_params: dict[str, str],
-) -> list[tuple[str, str | int]]:
+    request_params: dict[str, list[str]],
+) -> list[tuple[str, object]]:
     """Преобразование набора параметров в request params.
 
     Args:
@@ -133,27 +133,11 @@ def craft_nb_query(
         "status": _dump_status,
     }
     for item_type, items in request_params.items():
+        if item_type not in checks:
+            raise ValueError("неизвестный тип параметра")
         for item in items:
             func = checks[item_type]
             q.append(func(item))
-
-        # if item_type == "name":
-        #    for item in items:
-        #        q.append(("name__ie", item.lower()))
-        # elif item_type == "site":
-        #    for item in items:
-        #        q.append(("site_id", _get_site_id(item)))
-        # elif item_type == "role":
-        #    for item in items:
-        #        q.append(("role_id", _get_device_role_id(item)))
-        # elif item_type == "manufacturer":
-        #    for item in items:
-        #        q.append(("manufacturer_id", _get_manufacturer_id(item)))
-        # elif item_type == "status":
-        #    for item in items:
-        #        q.append(("status", item))
-        # else:
-        #    raise ValueError("неизвестный тип параметра")
 
     q.append(("brief", "true"))
     q.append(("limit", 500))
